@@ -1,0 +1,8 @@
+
+{
+    "DBUser": "fidelize",
+	"DBPws":"f!d3Lize",
+	"DBServer":	"mongodb://mongodb:27017",
+	"DBName": "fidelizeDB",
+	"Server": "localhost:9000"
+}
