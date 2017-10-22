@@ -1,9 +1,11 @@
 package routers
 
 import (
-	"accreditation-merchant-service/common"
-	"accreditation-merchant-service/controllers"
-	//"github.com/julienschmidt/httprouter"
+	"fidelize/accreditation-merchant-service/common"
+	"fidelize/accreditation-merchant-service/controllers"
+	"log"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 // Router struct represents the route
@@ -20,33 +22,18 @@ func NewRouter() *Router {
 func (r Router) GetRouters() {
 
 	// Get a UserController instance
-	uc := controllers.NewUserController(common.GetMongoSession())
-	wc := controllers.NewWidgetController(common.GetMongoSession())
+	userController := controllers.NewUserController(common.GetMongoSession())
 	ac := controllers.NewAuthController()
 
 	// Get a user by id
-	r.GET("/users/:id", uc.GetUser)
+	//r.GET("/users/:id", userController.GetUser)
 
 	// Create a new user
-	r.POST("/users", uc.CreateUser)
+	r.POST("/users", userController.CreateUser)
 
+	log.Println("ADD ROTE /users")
 	// Get all users
-	r.GET("/users", uc.GetAllUsers)
-
-	// Get a widget by id
-	r.GET("/widgets/:id", wc.GetWidget)
-
-	// Create a new widget
-	r.POST("/widgets", wc.CreateWidget)
-
-	// Get all widgets
-	r.GET("/widgets", wc.GetAllWidgets)
-
-	// Remove a existing widget
-	r.DELETE("/widgets/:id", wc.RemoveWidget)
-
-	// Update a existing widget
-	r.PUT("/widgets/:id", wc.UpdateWidget)
+	r.GET("/users", userController.GetAllUsers)
 
 	r.GET("/authenticate", ac.GetToken)
 
