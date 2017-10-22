@@ -2,24 +2,21 @@ package rules
 
 import (
 	"fidelize/accreditation-merchant-service/models"
-	"fmt"
 )
 
 //ValidateInsetion validade data created by frontend
-func ValidateInsetion(user *models.User) (bool, string) {
+func ValidateInsetion(merchant *models.Merchant) (bool, string) {
 
-	if user.Name == "" {
+	if merchant.Name == "" {
 		return false, "Name is mandatory"
 	}
 
-	fmt.Println("user.CPF ==> ", user.CPF)
-
-	if user.CPF == "" {
-		return false, "CPF is mandatory"
+	if merchant.CNPJ == "" {
+		return false, "CNPJ is mandatory"
 	}
 
-	if user.Mail == "" {
-		return false, "User email is mandatory"
+	if merchant.Mail == "" {
+		return false, "Email is mandatory"
 	}
 
 	return true, ""

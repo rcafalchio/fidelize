@@ -3,12 +3,12 @@ package models
 //Third party packages
 import "gopkg.in/mgo.v2/bson"
 
-//Widget model
+//Merchant model
 type Merchant struct {
-	Id        bson.ObjectId `json:"id" bson:"_id,omitempty"`
-	Name      string        `json:"name" bson:"name"`
-	Color     string        `json:"color" bson:"color"`
-	Price     string        `json:"price" bson:"price"`
-	Inventory int           `json:"inventory" bson:"inventory"`
-	Melts     bool          `json:"melts" bson:"melts"`
+	ID          bson.ObjectId `json:"id" bson:"_id,omitempty"`
+	Name        string        `json:"name" bson:"name"`
+	CNPJ        string        `json:"cnpj" bson:"cnpj"`
+	TradingName string        `json:"trading_price" bson:"trading_price"`
+	Segment     int           `json:"segment" bson:"segment"`
+	Mail        string        `json:"mail" bson:"mail"`
 }
