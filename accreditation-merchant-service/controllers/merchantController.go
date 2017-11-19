@@ -114,6 +114,8 @@ func (uc MerchantController) CreateMerchant(w http.ResponseWriter, r *http.Reque
 	validated, ValidationMsg := rules.ValidateInsetion(&m)
 
 	if validated {
+
+		rules.FindSegment(&m)
 		// Insert the Merchant to the mongo
 		uc.session.DB(common.AppSettings.DBName).C("Merchant").Insert(m)
 		log.Println("Inserting Merchant ", m.Name)

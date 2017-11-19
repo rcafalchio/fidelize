@@ -14,9 +14,13 @@ import (
 
 // Test started when the test binary is started. Only calls main.
 func TestEmptyName(t *testing.T) {
-	u := models.User{}
+	m := models.Merchant{}
+	m.CNPJ = "01.027.058/0001-91"
+	m.Name = "TESTE"
+	m.Mail = "teste@teste"
+	result, _ := ValidateInsetion(&m)
 
-	if ValidateInsetion(&u) == "" {
+	if !result {
 		t.Fail()
 	}
 }
