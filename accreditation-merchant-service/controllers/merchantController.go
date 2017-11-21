@@ -31,13 +31,9 @@ func (uc MerchantController) GetAllMerchants(w http.ResponseWriter, r *http.Requ
 
 	log.Println("Getting all Merchants...")
 
-	//Verify JWT
-	//tokenIsValid, msgError := auth.ValidateToken(r)
-
-	//if tokenIsValid {
 	results := []models.Merchant{}
-	// Find Anyone in mongoDB "MerchantS"
-	if err := uc.session.DB(common.AppSettings.DBName).C("Merchants").Find(nil).All(&results); err != nil {
+
+	if err := uc.session.DB(common.AppSettings.DBName).C("Merchant").Find(nil).All(&results); err != nil {
 		w.WriteHeader(404)
 		return
 	}
@@ -46,7 +42,7 @@ func (uc MerchantController) GetAllMerchants(w http.ResponseWriter, r *http.Requ
 
 	// Write content-type, statuscode, payload
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "%s", MerchantsJSON)
 	// } else {
 	// 	//If Token was reject
@@ -69,31 +65,36 @@ func (uc MerchantController) GetMerchant(w http.ResponseWriter, r *http.Request,
 
 	// Verify id is ObjectId
 	if !bson.IsObjectIdHex(id) {
-		w.WriteHeader(404)
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, "Invalid ID")
 		return
 	}
 
 	//Get the verified ID
 	idMongo := bson.ObjectIdHex(id)
-
 	//New Merchant from models
-	u := models.Merchant{}
+	m := models.Merchant{}
 
 	// Fetch Merchant
-	if err := uc.session.DB(common.AppSettings.DBName).C("Merchants").FindId(idMongo).One(&u); err != nil {
-		w.WriteHeader(404)
+	if err := uc.session.DB(common.AppSettings.DBName).C("Merchant").FindId(idMongo).One(&m); err != nil {
+		if fmt.Sprint(err) == "not found" {
+			w.WriteHeader(http.StatusNotFound)
+		} else {
+			log.Fatal("Erro ao buscar o usuário", err)
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 		return
 	}
 
-	uj, _ := json.Marshal(u)
+	println("BUSCOU = ", m.ID)
 
+	uj, _ := json.Marshal(m)
 	// Write content-type, statuscode, payload
 	w.Header().Set("Content		uj, _ := json.Marshal(u) -Type", "application/json")
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "%s", uj)
 	// } else {
-	// 	//If Token was reject		// Insert the Merchant to the mongo
-	uc.session.DB(common.AppSettings.DBName).C("Merchant").Insert(u)
+	// 	//If Token was reject
 	// 	w.WriteHeader(http.StatusUnautCPFhorized)
 	// 	fmt.Fprint(w, msgError)
 	// }
@@ -114,60 +115,53 @@ func (uc MerchantController) CreateMerchant(w http.ResponseWriter, r *http.Reque
 	validated, ValidationMsg := rules.ValidateInsetion(&m)
 
 	if validated {
-
 		rules.FindSegment(&m)
+		m.Active = true
 		// Insert the Merchant to the mongo
 		uc.session.DB(common.AppSettings.DBName).C("Merchant").Insert(m)
 		log.Println("Inserting Merchant ", m.Name)
 		// Marshal provided interface into JSON structure
-		uj, _ := json.Marshal(m)
+		mj, _ := json.Marshal(m)
 		// Write content-type, statuscode, payload
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(201)
-		fmt.Fprintf(w, "%s", uj)
-		/*} else {
-			//If Token was reject
-			w.WriteHeader(http.StatusUnauthorized)
-			fmt.Fprint(w, msgError)
-		}*/
+		w.WriteHeader(http.StatusCreated)
+		fmt.Fprintf(w, "%s", mj)
 	} else {
-		//If Token was reject
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprint(w, ValidationMsg)
 	}
 
 }
 
-// RemoveMerchant removes an existing Merchant
-func (uc MerchantController) RemoveMerchant(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+// InactivateMerchant - Inactivate an existing Merchant
+func (uc MerchantController) InactivateMerchant(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
-	//Verify JWT
-	tokenIsValid, msgError := auth.ValidateToken(r)
+	// Get parameter id
+	id := p.ByName("id")
 
-	if tokenIsValid {
-		// Get parameter id
-		id := p.ByName("id")
-
-		// Verify id is ObjectId, otherwise bail
-		if !bson.IsObjectIdHex(id) {
-			w.WriteHeader(404)
-			return
-		}
-
-		// Get verified parameter id
-		idMongo := bson.ObjectIdHex(id)
-
-		// Remove Merchant
-		if err := uc.session.DB(common.AppSettings.DBName).C("Merchants").RemoveId(idMongo); err != nil {
-			w.WriteHeader(404)
-			return
-		}
-
-		// Write status
-		w.WriteHeader(200)
-	} else {
-		//If Token was reject
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, msgError)
+	// Verify id is ObjectId
+	if !bson.IsObjectIdHex(id) {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, "Invalid ID")
+		return
 	}
+
+	// Get verified parameter id
+	idMongo := bson.ObjectIdHex(id)
+	change := bson.M{"$set": bson.M{"active": false}}
+
+	// Remove Merchant
+	if err := uc.session.DB(common.AppSettings.DBName).C("Merchant").UpdateId(idMongo, change); err != nil {
+		if fmt.Sprint(err) == "not found" {
+			println("TESTE RICARDO - Não encontrou!!!")
+			w.WriteHeader(http.StatusNotFound)
+		} else {
+			log.Fatal("Erro ao desativar o usuário", err)
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+		return
+	}
+
+	// Write status
+	w.WriteHeader(200)
 }

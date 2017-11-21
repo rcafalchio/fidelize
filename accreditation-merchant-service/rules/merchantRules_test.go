@@ -15,7 +15,7 @@ import (
 // Test started when the test binary is started. Only calls main.
 func TestEmptyName(t *testing.T) {
 	m := models.Merchant{}
-	m.CNPJ = "01.027.058/0001-91"
+	m.CNPJ = 1027058000191 //"01.027.058/0001-91"
 	m.Name = "TESTE"
 	m.Mail = "teste@teste"
 	result, _ := ValidateInsetion(&m)

@@ -11,7 +11,9 @@ func ValidateInsetion(merchant *models.Merchant) (bool, string) {
 		return false, "Name is mandatory"
 	}
 
-	if merchant.CNPJ == "" {
+	println("TESTE RICARDO - merchant.CNPJ ", merchant.CNPJ)
+
+	if merchant.CNPJ == 0 {
 		return false, "CNPJ is mandatory"
 	}
 
@@ -24,8 +26,6 @@ func ValidateInsetion(merchant *models.Merchant) (bool, string) {
 
 //FindSegment find segment by id informed
 func FindSegment(merchant *models.Merchant) {
-
-	println("merchant.Segment.ID ", merchant.Segment.ID)
 
 	if merchant.Segment.ID == 1 {
 		merchant.Segment.Name = "ESTETICA E BELEZA"
