@@ -2,6 +2,8 @@ package controllers
 
 import (
 	// Standard packages
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -50,6 +52,18 @@ func (ac AuthController) ValidateToken(r *http.Request) (bool, string) {
 
 // GetToken retrieves a valid token to the client
 func (ac AuthController) GetToken(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+
+	var user User _ = json.NewDecoder(r.Body).Decode(&user)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"username": user.Username,
+		"password": user.Password,
+	})
+	
+	tokenString, error := token.SignedString([]byte("secret"))
+	if error != nil {
+		fmt.Println(error)
+	}
+	json.NewEncoder(w).Encode(JwtToken{Token: tokenString})
 
 	// Create a new token
 	token := jwt.New(jwt.SigningMethodHS256)

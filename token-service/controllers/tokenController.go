@@ -48,8 +48,8 @@ func (ac AuthController) ValidateToken(r *http.Request) (bool, string) {
 
 }
 
-// GetToken retrieves a valid token to the client
-func (ac AuthController) GetToken(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+// Create retrieves a valid token to the client
+func (ac AuthController) Create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	// Create a new token
 	token := jwt.New(jwt.SigningMethodHS256)
