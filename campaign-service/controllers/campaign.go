@@ -4,9 +4,9 @@ import (
 	"log"
 	// Standard packages
 	"encoding/json"
-	"fidelize/accreditation-merchant-service/common"
-	"fidelize/accreditation-merchant-service/models"
-	"fidelize/accreditation-merchant-service/rules"
+	"fidelize/campaign-service/common"
+	"fidelize/campaign-service/models"
+	"fidelize/campaign-service/rules"
 	"fmt"
 	"net/http"
 
@@ -16,49 +16,49 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// UserController struct represents the controller to perform get,post and delete
-type UserController struct {
+// CampaignController struct represents the controller to perform get,post and delete
+type CampaignController struct {
 	session *mgo.Session
 }
 
-// NewUserController Gets a reference to UserController with a referenced mongo session
-func NewUserController(s *mgo.Session) *UserController {
-	return &UserController{s}
+// NewCampaignController Gets a reference to CampaignController with a referenced mongo session
+func NewCampaignController(s *mgo.Session) *CampaignController {
+	return &CampaignController{s}
 }
 
-//GetAllUsers retrieves all users
-func (uc UserController) GetAllUsers(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+//GetAllCampaigns retrieves all campaigns
+func (cc CampaignController) GetAllCampaigns(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
-	log.Println("Getting all users...")
+	log.Println("Getting all campaigns...")
 
 	//Verify JWT
 	//tokenIsValid, msgError := auth.ValidateToken(r)
 
 	//if tokenIsValid {
-	results := []models.User{}
-	// Find Anyone in mongoDB "USERS"
-	if err := uc.session.DB(common.AppSettings.DBName).C("users").Find(nil).All(&results); err != nil {
+	results := []models.Campaign{}
+	// Find Anyone in mongoDB "CAMPAIGNS"
+	if err := uc.session.DB(common.AppSettings.DBName).C("campaigns").Find(nil).All(&results); err != nil {
 		w.WriteHeader(404)
 		return
 	}
 
-	usersJSON, _ := json.Marshal(results)
+	campaignsJSON, _ := json.Marshal(results)
 
 	// Write content-type, statuscode, payload
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
-	fmt.Fprintf(w, "%s", usersJSON)
+	fmt.Fprintf(w, "%s", campaignsJSON)
 	// } else {
 	// 	//If Token was reject
 	// 	w.WriteHeader(http.StatusUnauthorized)
 	// 	fmt.Fprint(w, msgError)
 	// }
 
-	log.Println("retriving all users...")
+	log.Println("retriving all campaigns...")
 }
 
-// GetUser retrieves an individual user
-func (uc UserController) GetUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+// GetCampaign retrieves an individual campaign
+func (cc CampaignController) GetCampaign(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	//Verify JWT
 	//tokenIsValid, msgError := auth.ValidateToken(r)
@@ -76,11 +76,11 @@ func (uc UserController) GetUser(w http.ResponseWriter, r *http.Request, p httpr
 	//Get the verified ID
 	idMongo := bson.ObjectIdHex(id)
 
-	//New user from models
-	u := models.User{}
+	//New campaign from models
+	u := models.Campaign{}
 
-	// Fetch user
-	if err := uc.session.DB(common.AppSettings.DBName).C("users").FindId(idMongo).One(&u); err != nil {
+	// Fetch campaign
+	if err := uc.session.DB(common.AppSettings.DBName).C("campaigns").FindId(idMongo).One(&u); err != nil {
 		w.WriteHeader(404)
 		return
 	}
@@ -92,31 +92,31 @@ func (uc UserController) GetUser(w http.ResponseWriter, r *http.Request, p httpr
 	w.WriteHeader(200)
 	fmt.Fprintf(w, "%s", uj)
 	// } else {
-	// 	//If Token was reject		// Insert the user to the mongo
-	uc.session.DB(common.AppSettings.DBName).C("user").Insert(u)
+	// 	//If Token was reject		// Insert the campaign to the mongo
+	uc.session.DB(common.AppSettings.DBName).C("campaign").Insert(u)
 	// 	w.WriteHeader(http.StatusUnauthorized)
 	// 	fmt.Fprint(w, msgError)
 	// }
 }
 
-// CreateUser creates a new user
-func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+// CreateCampaign creates a new campaign
+func (uc CampaignController) CreateCampaign(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	//Verify JWT
 	//tokenIsValid, msgError := auth.ValidateToken(r)
 	//if tokenIsValid {
-	//New user from models
-	u := models.User{}
-	// Populate the user data
+	//New campaign from models
+	u := models.Campaign{}
+	// Populate the campaign data
 	json.NewDecoder(r.Body).Decode(&u)
 	// Add an ObjectId
 	u.ID = bson.NewObjectId()
 	validated, ValidationMsg := rules.ValidateInsetion(&u)
 
 	if validated {
-		// Insert the user to the mongo
-		uc.session.DB(common.AppSettings.DBName).C("user").Insert(u)
-		log.Println("Inserting User ", u.Name)
+		// Insert the campaign to the mongo
+		uc.session.DB(common.AppSettings.DBName).C("campaign").Insert(u)
+		log.Println("Inserting Campaign ", u.Name)
 		// Marshal provided interface into JSON structure
 		uj, _ := json.Marshal(u)
 		// Write content-type, statuscode, payload
@@ -136,8 +136,8 @@ func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request, p ht
 
 }
 
-// RemoveUser removes an existing user
-func (uc UserController) RemoveUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+// RemoveCampaign removes an existing campaign
+func (uc CampaignController) RemoveCampaign(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	//Verify JWT
 	tokenIsValid, msgError := auth.ValidateToken(r)
@@ -155,8 +155,8 @@ func (uc UserController) RemoveUser(w http.ResponseWriter, r *http.Request, p ht
 		// Get verified parameter id
 		idMongo := bson.ObjectIdHex(id)
 
-		// Remove user
-		if err := uc.session.DB(common.AppSettings.DBName).C("users").RemoveId(idMongo); err != nil {
+		// Remove campaign
+		if err := uc.session.DB(common.AppSettings.DBName).C("campaigns").RemoveId(idMongo); err != nil {
 			w.WriteHeader(404)
 			return
 		}

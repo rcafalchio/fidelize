@@ -1,7 +1,7 @@
 package rules
 
 import (
-	"fidelize/accreditation-user-service/models"
+	"fidelize/accreditation-merchant-service/models"
 	"fmt"
 )
 

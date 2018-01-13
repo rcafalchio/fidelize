@@ -4,9 +4,9 @@ import (
 	"log"
 	// Standard packages
 	"encoding/json"
-	"fidelize/accreditation-merchant-service/common"
-	"fidelize/accreditation-merchant-service/models"
-	"fidelize/accreditation-merchant-service/rules"
+	"fidelize/accreditation-user-service/common"
+	"fidelize/accreditation-user-service/models"
+	"fidelize/accreditation-user-service/rules"
 	"fmt"
 	"net/http"
 
@@ -37,7 +37,7 @@ func (uc UserController) GetAllUsers(w http.ResponseWriter, r *http.Request, p h
 	//if tokenIsValid {
 	results := []models.User{}
 	// Find Anyone in mongoDB "USERS"
-	if err := uc.session.DB(common.AppSettings.DBName).C("users").Find(nil).All(&results); err != nil {
+	if err := uc.session.DB(common.AppSettings.DBName).C("user").Find(nil).All(&results); err != nil {
 		w.WriteHeader(404)
 		return
 	}
@@ -80,7 +80,7 @@ func (uc UserController) GetUser(w http.ResponseWriter, r *http.Request, p httpr
 	u := models.User{}
 
 	// Fetch user
-	if err := uc.session.DB(common.AppSettings.DBName).C("users").FindId(idMongo).One(&u); err != nil {
+	if err := uc.session.DB(common.AppSettings.DBName).C("user").FindId(idMongo).One(&u); err != nil {
 		w.WriteHeader(404)
 		return
 	}
@@ -91,12 +91,6 @@ func (uc UserController) GetUser(w http.ResponseWriter, r *http.Request, p httpr
 	w.Header().Set("Content		uj, _ := json.Marshal(u) -Type", "application/json")
 	w.WriteHeader(200)
 	fmt.Fprintf(w, "%s", uj)
-	// } else {
-	// 	//If Token was reject		// Insert the user to the mongo
-	uc.session.DB(common.AppSettings.DBName).C("user").Insert(u)
-	// 	w.WriteHeader(http.StatusUnauthorized)
-	// 	fmt.Fprint(w, msgError)
-	// }
 }
 
 // CreateUser creates a new user
@@ -134,38 +128,4 @@ func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request, p ht
 		fmt.Fprint(w, ValidationMsg)
 	}
 
-}
-
-// RemoveUser removes an existing user
-func (uc UserController) RemoveUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-
-	//Verify JWT
-	tokenIsValid, msgError := auth.ValidateToken(r)
-
-	if tokenIsValid {
-		// Get parameter id
-		id := p.ByName("id")
-
-		// Verify id is ObjectId, otherwise bail
-		if !bson.IsObjectIdHex(id) {
-			w.WriteHeader(404)
-			return
-		}
-
-		// Get verified parameter id
-		idMongo := bson.ObjectIdHex(id)
-
-		// Remove user
-		if err := uc.session.DB(common.AppSettings.DBName).C("users").RemoveId(idMongo); err != nil {
-			w.WriteHeader(404)
-			return
-		}
-
-		// Write status
-		w.WriteHeader(200)
-	} else {
-		//If Token was reject
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, msgError)
-	}
 }

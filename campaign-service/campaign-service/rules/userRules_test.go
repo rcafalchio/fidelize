@@ -8,15 +8,15 @@ package rules
 // This file is mandatory as otherwise the packetbeat.test binary is not generated correctly.
 
 import (
-	"fidelize/accreditation-user-service/models"
+	"fidelize/accreditation-merchant-service/models"
 	"testing"
 )
 
 // Test started when the test binary is started. Only calls main.
 func TestEmptyName(t *testing.T) {
 	u := models.User{}
-	validate, _ := ValidateInsetion(&u)
-	if validate {
+
+	if ValidateInsetion(&u) == "" {
 		t.Fail()
 	}
 }

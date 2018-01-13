@@ -23,7 +23,7 @@ var AppSettings configuration
 
 func loadSettings() {
 	// //Getting the config file
-	file, err := os.Open("settings-merchant-service.json")
+	file, err := os.Open("settings.json")
 
 	defer file.Close()
 

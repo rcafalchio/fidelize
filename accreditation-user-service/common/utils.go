@@ -23,7 +23,7 @@ var AppSettings configuration
 
 func loadSettings() {
 	// //Getting the config file
-	file, err := os.Open("settings.json")
+	file, err := os.Open("settings-user-service.json")
 
 	defer file.Close()
 
@@ -35,11 +35,6 @@ func loadSettings() {
 	// //Decoding the input file to json
 	decoder := json.NewDecoder(file)
 
-	// //New struct to be populated by de config file
-	// AppSettings = configuration{}
-	// AppSetting.Server = "localhost:9000"
-	// AppSettings.DBServer = "mongodb://localhost:27017"
-	// AppSettings.DBName =  "widget-spa-go"
 	// //Populating the struct that represents de config file
 	err = decoder.Decode(&AppSettings)
 

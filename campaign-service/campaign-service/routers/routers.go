@@ -1,8 +1,8 @@
 package routers
 
 import (
-	"fidelize/accreditation-user-service/common"
-	"fidelize/accreditation-user-service/controllers"
+	"fidelize/campaign-service/common"
+	"fidelize/campaign-service/controllers"
 	"log"
 
 	"github.com/julienschmidt/httprouter"
@@ -22,16 +22,17 @@ func NewRouter() *Router {
 func (r Router) GetRouters() {
 
 	// Get a UserController instance
-	userController := controllers.NewUserController(common.GetMongoSession())
+	campaignController := controllers.NewCampaignController(common.GetMongoSession())
+	ac := controllers.NewAuthController()
 
 	// Get a user by id
-	r.GET("/users/:id", userController.GetUser)
+	//r.GET("/users/:id", userController.GetUser)
 
 	// Create a new user
-	r.POST("/users", userController.CreateUser)
+	r.POST("/campaign", campaignController.CreateCampaign)
 
-	log.Println("ADD ROTE /users")
+	log.Println("ADD ROTE /campaigns")
 	// Get all users
-	r.GET("/users", userController.GetAllUsers)
+	r.GET("/campaigns", userController.GetAllUsers)
 
 }
